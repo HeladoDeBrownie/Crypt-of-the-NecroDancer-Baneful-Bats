@@ -7,6 +7,7 @@ local Attack = require'necro.game.character.Attack'
 local Collision = require'necro.game.tile.Collision'
 local Damage = require'necro.game.system.Damage'
 local Event = require'necro.event.Event'
+local Flyaway = require'necro.game.system.Flyaway'
 local Player = require'necro.game.character.Player'
 
 -- The "feedback" needs to happen *before* the bat has decided which way to go,
@@ -54,6 +55,7 @@ Event.objectCheckMove.add('batstep', {
         for _, victim in ipairs(victims) do
             if Player.isPlayerEntity(victim) then
                 -- Someone made a wrong move! Kill!
+                Flyaway.create({text = 'Bat blunder!', entity = victim})
                 -- Damage.inflict was chosen over Object.die because it causes
                 -- a red VFX like that of Monk's death from vow of poverty.
                 Damage.inflict{
