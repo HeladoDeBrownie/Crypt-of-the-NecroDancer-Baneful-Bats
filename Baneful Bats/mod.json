@@ -1,0 +1,9 @@
+{
+    "namespace": "BanefulBats",
+    "name": "BanefulBats",
+    "displayName": "Baneful Bats",
+    "author": "suno lili So",
+    "version": "0.0.0",
+    "synchronyVersion": "4.1.0",
+    "description": "Chance-based moves are lethal."
+}
