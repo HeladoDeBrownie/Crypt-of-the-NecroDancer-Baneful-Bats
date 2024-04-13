@@ -15,9 +15,9 @@ local Player = require'necro.game.character.Player'
 Event.objectCheckMove.add('batstep', {
     order = 'moveType',
     filter = {
-        -- Bats are AI entities, which is as specific as we can get as far as
-        -- filtering for components goes.
-        'ai',
+        -- Bats are AI entities with an innate attack, which is as specific as
+        -- we can get as far as filtering for components goes.
+        'ai', 'innateAttack',
         -- But black bats are exempt because there is no randomness involved in
         -- them attacking you. They just always attack if able.
         '!aiAttackWhenPossible',
@@ -31,6 +31,7 @@ Event.objectCheckMove.add('batstep', {
     -- though. The more the merrier.
     if ai.id ~= AI.Type.RANDOM then return end
 
+    local innateAttack = entity.innateAttack
     local position = entity.position
     local my_x, my_y = position.x, position.y
 
@@ -54,16 +55,42 @@ Event.objectCheckMove.add('batstep', {
 
         for _, victim in ipairs(victims) do
             if Player.isPlayerEntity(victim) then
-                -- Someone made a wrong move! Kill!
-                Flyaway.create({text = 'Bat blunder!', entity = victim})
-                -- Damage.inflict was chosen over Object.die because it causes
-                -- a red VFX like that of Monk's death from vow of poverty.
+                -- Someone made a wrong move!
+                -- Some methods of avoiding taking chances with bats can still
+                -- save the player at this point. An active shield spell, a
+                -- ring of shielding, or a crown of teleportation will work,
+                -- among others. We're going to check if the bat's attack would
+                -- have done any damage, and if so, punish the player.
+                local health = victim.health.health
+                local cursedHealth = victim.cursedHealth.health
                 Damage.inflict{
+                    attacker = entity,
                     victim = victim,
-                    damage = 999,
-                    type = Damage.Type.SELF_DESTRUCT,
+                    damage = innateAttack.damage,
+                    type = bit.bor(
+                        -- Use the same damage flags as the bat,
+                        innateAttack.type,
+                        -- but preserve groove chain to prevent the "coin
+                        -- multiplier lost" flyaway from overlapping the
+                        -- blunder flyaway.
+                        Damage.Flag.SELF_DAMAGE
+                    ),
                     killerName = 'incaution',
                 }
+                if
+                    victim.health.health ~= health or
+                    victim.cursedHealth.health ~= cursedHealth
+                then
+                    -- The player took damage! Kill!
+                    Flyaway.create({text = 'Bat blunder!', entity = victim})
+                    Damage.inflict({
+                        attacker = entity,
+                        victim = victim,
+                        damage = 999,
+                        type = Damage.Type.SELF_DESTRUCT,
+                        killerName = 'incaution',
+                    })
+                end
             end
         end
 
