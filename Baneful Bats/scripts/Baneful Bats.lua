@@ -9,6 +9,14 @@ local Damage = require'necro.game.system.Damage'
 local Event = require'necro.event.Event'
 local Flyaway = require'necro.game.system.Flyaway'
 local Player = require'necro.game.character.Player'
+local Settings = require'necro.config.Settings'
+
+fatalBlunder = Settings.shared.bool({
+    name = 'Bat blunders are fatal',
+    desc = [[
+If disabled, bat blunders deal only the damage the bat would have dealt.]],
+    default = true,
+})
 
 -- The "feedback" needs to happen *before* the bat has decided which way to go,
 -- so that the bat can go on their merry little way unbothered and unimpeded.
@@ -81,15 +89,20 @@ Event.objectCheckMove.add('batstep', {
                     victim.health.health ~= health or
                     victim.cursedHealth.health ~= cursedHealth
                 then
-                    -- The player took damage! Kill!
+                    -- The player took damage!
                     Flyaway.create({text = 'Bat blunder!', entity = victim})
-                    Damage.inflict({
-                        attacker = entity,
-                        victim = victim,
-                        damage = 999,
-                        type = Damage.Type.SELF_DESTRUCT,
-                        killerName = 'incaution',
-                    })
+                    -- Mercifully, we allow the players to configure whether
+                    -- this actually kills them.
+                    if fatalBlunder then
+                        -- Kill!
+                        Damage.inflict({
+                            attacker = entity,
+                            victim = victim,
+                            damage = 999,
+                            type = Damage.Type.SELF_DESTRUCT,
+                            killerName = 'incaution',
+                        })
+                    end
                 end
             end
         end
