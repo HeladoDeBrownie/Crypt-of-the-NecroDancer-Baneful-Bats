@@ -1,0 +1,3 @@
+*Baneful Bats* is a *Crypt of the NecroDancer* mod that makes chance-based moves fatal, such as moving next to a bat that's about to move. It can be configured from the menu to merely damage instead of killing by changing `Customize→Custom Rules→Mod Options→Baneful Bats→Bat blunders are fatal`.
+
+*Baneful Bats* es un mod para *Crypt of the NecroDancer* que hace que los movimientos afectados por la suerte sean letales, tal como moverse al lado de un murciélago a punto de moverse. Se puede configurar en el menú para que simplemente haga daño en vez de matar, cambiando `Personalizar→Reglas personalizadas→Ajustes de mods→Baneful Bats→Bat blunders are fatal`.
